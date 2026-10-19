@@ -1,0 +1,13 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": [
+    "AarsyDesign"
+  ],
+  "name": "pushnotif-mcp",
+  "description": "Official MCP Server for PushNotif.biz.id \u2014 Web Push (VAPID), Android (FCM), iOS (APNs), In-App Popup Banners, and Auto-Push RSS notifications for AI Coding Agents.",
+  "homepage": "https://pushnotif.biz.id",
+  "remote": {
+    "transport": "streamable-http",
+    "url": "https://pushnotif.biz.id/mcp"
+  }
+}

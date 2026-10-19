@@ -1,0 +1,30 @@
+{
+  "name": "pushnotif-mcp",
+  "version": "2.1.0",
+  "description": "Official Model Context Protocol (MCP) Server for PushNotif.biz.id \u2014 Web Push, Android FCM, iOS APNs, In-App Popup & Auto-Push RSS.",
+  "main": "index.js",
+  "bin": {
+    "pushnotif-mcp": "./index.js"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "push-notifications",
+    "web-push",
+    "vapid",
+    "fcm",
+    "apns",
+    "claude-code",
+    "cursor",
+    "pushnotif",
+    "indonesia"
+  ],
+  "homepage": "https://pushnotif.biz.id",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AarsyDesign/pushnotif-mcp.git"
+  },
+  "author": "Arsyad (AarsyDesign) <support@pushnotif.biz.id>",
+  "license": "MIT"
+}

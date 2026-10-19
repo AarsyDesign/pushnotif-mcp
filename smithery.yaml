@@ -1,0 +1,12 @@
+startCommand:
+  type: http
+  url: https://pushnotif.biz.id/mcp
+  configSchema:
+    type: object
+    required:
+      - apiKey
+    properties:
+      apiKey:
+        type: string
+        title: PushNotif API Key
+        description: Your PushNotif API Key (pn_live_...) from https://pushnotif.biz.id (Free 1,000 credits included)
