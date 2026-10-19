@@ -1,73 +1,88 @@
-# 🔔 PushNotif MCP Server (`pushnotif.biz.id`)
+# 🔔 PushNotif MCP Server (`pushnotif-mcp-server`)
 
-[![MCP Protocol](https://img.shields.io/badge/MCP-2025--03--26%20Streamable%20HTTP-0058BE?style=flat-square)](https://pushnotif.biz.id/mcp)
-[![Website](https://img.shields.io/badge/Website-pushnotif.biz.id-047857?style=flat-square)](https://pushnotif.biz.id)
-[![Agent Ready](https://img.shields.io/badge/AI%20Agent%20Ready-llms.txt%20%2B%20OpenAPI-0F172A?style=flat-square)](https://pushnotif.biz.id/llms.txt)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-2563eb?style=flat-square)](https://modelcontextprotocol.io)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-10b981?style=flat-square)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
 
-**Official Model Context Protocol (MCP) Server for [PushNotif.biz.id](https://pushnotif.biz.id)** — Multi-Channel Notification Infrastructure (**Web Push VAPID, Android FCM, iOS APNs, In-App Popup & Live Activity Toast, Auto-Push RSS/Sitemap, and Transactional Email Relay**) with **Pay-As-You-Go QRIS** (IDR 0.20 / push, no monthly subscription, credits never expire).
-
-> 🇮🇩 **Bahasa Indonesia:** Server MCP resmi untuk **[PushNotif.biz.id](https://pushnotif.biz.id)** — memungkinkan AI Coding Agent (**Claude Code, Cursor, Windsurf, Cline, VS Code Copilot, OpenClaw**) mendaftarkan website, mengambil kode pasang SDK 1-baris, menembakkan *broadcast* Web Push / Android / iOS, mengatur *In-App Popup*, dan mengaktifkan *Auto-Push RSS* langsung dari dalam teks editor Anda.
+Official open-source **Model Context Protocol (MCP) Server** implementation for **[PushNotif.biz.id](https://pushnotif.biz.id)** — allowing AI coding assistants (**Claude Desktop, Claude Code, Cursor, Windsurf, Cline, and Glama**) to register accounts, generate SDK snippets, broadcast Web Push (VAPID) & Mobile Push (Android FCM / iOS APNs), configure In-App Popup Banners, and manage QRIS credits.
 
 ---
 
-## ⚡ Quick Setup (Zero-Install Streamable HTTP)
+## 📦 Repository Architecture (Open-Source MCP Server Implementation)
 
-### 1. Claude Code CLI
+This repository contains the complete, runnable MCP Server implementation built on `@modelcontextprotocol/sdk`:
+
+- **`src/index.js`** — Full Stdio MCP Server implementation (`@modelcontextprotocol/sdk`) exposing all **17 PushNotif tools** (`ListToolsRequestSchema` & `CallToolRequestSchema`).
+- **`Dockerfile`** — Containerized build for Glama.ai automated inspection and local Docker execution.
+- **`package.json`** — Node.js ES Module package (`bin: pushnotif-mcp`).
+- **`glama.json` & `smithery.yaml`** — Registry metadata manifests.
+
+---
+
+## 🚀 Quick Start (Local Stdio MCP Server)
+
+### Option 1: Run via Node.js / `npx` (Stdio)
+
+Clone and install dependencies:
 ```bash
-claude mcp add --transport http pushnotif https://pushnotif.biz.id/mcp --header "Authorization: Bearer YOUR_API_KEY"
+git clone https://github.com/AarsyDesign/pushnotif-mcp.git
+cd pushnotif-mcp
+npm install
 ```
 
-### 2. Cursor / Windsurf / Cline / Claude Desktop (`mcp.json`)
+Add to your `claude_desktop_config.json` or `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
     "pushnotif": {
-      "url": "https://pushnotif.biz.id/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
+      "command": "node",
+      "args": ["/absolute/path/to/pushnotif-mcp/src/index.js"],
+      "env": {
+        "PUSHNOTIF_API_KEY": "pn_live_YOUR_API_KEY_HERE"
       }
     }
   }
 }
 ```
 
-> 💡 **Where to get `YOUR_API_KEY`?**
-> Sign up for free at **[https://pushnotif.biz.id](https://pushnotif.biz.id)** (includes **1,000 Free Starter Credits**, no credit card required) and copy your API Key (`pn_live_...`) from the **API, MCP & Profil Akun** tab.
-> AI Agents can also self-register autonomously via OTP using the instructions in **[https://pushnotif.biz.id/llms.txt](https://pushnotif.biz.id/llms.txt)**.
+### Option 2: Run via Docker (Stdio)
+
+```bash
+docker build -t pushnotif-mcp .
+docker run -i --rm -e PUSHNOTIF_API_KEY=pn_live_YOUR_API_KEY_HERE pushnotif-mcp
+```
+
+### Option 3: Direct Streamable HTTP Endpoint
+
+You can also connect directly via Streamable HTTP at `https://pushnotif.biz.id/mcp` with `Authorization: Bearer pn_live_YOUR_API_KEY_HERE`.
 
 ---
 
-## 🛠️ Available MCP Tools (14 Developer Tools)
+## 🛠️ Available Tools (17 Tools)
 
-| # | Tool Name | Description |
-|---|---|---|
-| 1 | `list_apps` | List all registered websites/apps, active subscriber counts, and remaining credit balance. |
-| 2 | `create_app` | Register a new website/application and automatically generate ECDSA P-256 VAPID keys. |
-| 3 | `get_integration_guide` | Generate ready-to-paste integration code (`sw.js`, 1-line Web SDK, Laravel/Next.js/WordPress snippets, and REST cURL). |
-| 4 | `send_push_notification` | Broadcast real-time Web Push (VAPID), Android (FCM), and iOS (APNs) notifications to all active subscribers or targeted segments. |
-| 5 | `schedule_push_notification` | Schedule a future push campaign (`scheduled_at`) or recurring daily reminder (`repeat_rule`). |
-| 6 | `configure_inapp_banner` | Configure no-code In-App Popup Modals, Top Sticky Bars, Bottom Slide-in Cards, or Live Activity Toasts. |
-| 7 | `configure_rss_autopush` | Enable automated background RSS / Sitemap / Atom feed monitoring to auto-broadcast new articles. |
-| 8 | `list_subscribers` | Inspect active device subscriptions (`subscriptions`) and platform breakdown (Web, Android, iOS). |
-| 9 | `get_campaign_analytics` | Retrieve campaign delivery logs, click-through rates (CTR), and credit usage ledger. |
-| 10 | `update_app_branding` | Update application display name, icon URL, and automatic welcome push message. |
-| 11 | `configure_mobile_credentials` | Save native Android Firebase (`FCM Service Account JSON`) and Apple (`APNs .p8`) credentials. |
-| 12 | `create_qris_invoice` | Generate an instant QRIS payment invoice (starting from Rp 1,000) to top up quota credits. |
-| 13 | `check_billing_and_qris_status` | Check real-time credit balance, active QRIS invoice payment status, and official tax/invoice links. |
-| 14 | `update_profile` | Update workspace/company name and account profile settings. |
+### Account Onboarding (No API Key Required)
+1. **`request_registration_otp`** — Send 6-digit verification OTP to user email (includes automatic duplicate email check).
+2. **`register_new_account`** — Verify OTP, create a new PushNotif account (+1,000 Free Quota Credits forever), register first website, and return `api_key` (`pn_live_...`).
+3. **`login_existing_account`** — Authenticate an existing account with email & password to retrieve its `api_key`.
+
+### Workspace, Web Push, Mobile Push & In-App Automation
+4. **`list_apps`** — List all registered websites/apps, active subscriber counts, and credit balance.
+5. **`create_app`** — Register a new website or mobile app and generate VAPID keys.
+6. **`get_integration_guide`** — Generate copy-paste SDK snippets for HTML/JS, Laravel, Next.js/React, WordPress, Android (Kotlin), and iOS (Swift).
+7. **`send_push_notification`** — Broadcast instant Web Push (VAPID), Android (FCM), and iOS (APNs) notifications.
+8. **`schedule_push_notification`** — Schedule one-time or recurring (`daily` / `weekly`) push campaigns.
+9. **`configure_inapp_banner`** — Configure In-App Popup Modals, Top Sticky Bars, Bottom Slide Cards, or Live Activity Toasts.
+10. **`configure_rss_autopush`** — Configure automated RSS / Sitemap / Atom feed monitoring.
+11. **`configure_mobile_credentials`** — Upload Firebase FCM Service Account JSON or Apple APNs `.p8` credentials.
+12. **`list_subscribers`** — View active subscriber device distribution and segments.
+13. **`get_campaign_analytics`** — Inspect campaign delivery, click-through rate (CTR), and conversion metrics.
+14. **`create_qris_invoice`** — Generate a live QRIS payment invoice (starting from Rp 1,000 / 5,000 Credits).
+15. **`check_billing_and_qris_status`** — Check real-time QRIS payment status (`PENDING` / `PAID`) and credit balance.
+16. **`update_app_branding`** — Update notification icon URL and automatic Welcome Push message.
+17. **`update_profile`** — Update workspace display name or account password.
 
 ---
-
-## 🌐 Official Links & Documentation
-
-- **Website & Dashboard:** [https://pushnotif.biz.id](https://pushnotif.biz.id)
-- **Developer Documentation:** [https://pushnotif.biz.id/docs](https://pushnotif.biz.id/docs)
-- **MCP Integration Guide (ID):** [https://pushnotif.biz.id/panduan/mcp-claude-cursor-push-notification](https://pushnotif.biz.id/panduan/mcp-claude-cursor-push-notification)
-- **AI Agent Discovery (`llms.txt`):** [https://pushnotif.biz.id/llms.txt](https://pushnotif.biz.id/llms.txt)
-- **MCP Server Card:** [https://pushnotif.biz.id/.well-known/mcp/server-card.json](https://pushnotif.biz.id/.well-known/mcp/server-card.json)
-- **OpenAPI 3.1 Specification:** [https://pushnotif.biz.id/openapi.json](https://pushnotif.biz.id/openapi.json)
 
 ## 📄 License
 
-MIT License — Copyright (c) 2026 PushNotif.biz.id (Arsyad / AarsyDesign).
+MIT License — Copyright (c) 2026 PushNotif.biz.id (`AarsyDesign`)
