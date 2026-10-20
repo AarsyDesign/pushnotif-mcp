@@ -1,6 +1,6 @@
 {
   "name": "pushnotif-mcp-server",
-  "version": "2.1.0",
+  "version": "2.1.2",
   "description": "Official Model Context Protocol (MCP) Server for PushNotif.biz.id \u2014 Web Push (VAPID), Android (FCM), iOS (APNs), In-App Popup Banners, Live Activity Toast, and Auto-Push RSS.",
   "license": "MIT",
   "author": "Arsyad (AarsyDesign) <support@pushnotif.biz.id>",
