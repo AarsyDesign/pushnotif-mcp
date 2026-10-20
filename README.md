@@ -58,7 +58,7 @@ You can also connect directly via Streamable HTTP at `https://pushnotif.biz.id/m
 
 ---
 
-## 🛠️ Available Tools (17 Tools)
+## 🛠️ Available Tools (15 Full-Lifecycle Tools)
 
 ### Account Onboarding (No API Key Required)
 1. **`request_registration_otp`** — Send 6-digit verification OTP to user email (includes automatic duplicate email check).
