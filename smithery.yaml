@@ -1,12 +1,20 @@
+# Smithery.ai configuration for PushNotif MCP Server
 startCommand:
-  type: http
-  url: https://pushnotif.biz.id/mcp
+  type: stdio
   configSchema:
     type: object
     required:
-      - apiKey
+      - pushnotifApiKey
     properties:
-      apiKey:
+      pushnotifApiKey:
         type: string
-        title: PushNotif API Key
-        description: Your PushNotif API Key (pn_live_...) from https://pushnotif.biz.id (Free 1,000 credits included)
+        description: "Your PushNotif API key (pn_live_...) from https://pushnotif.biz.id/dashboard"
+  commandFunction:
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['src/index.js'],
+      env: {
+        PUSHNOTIF_API_KEY: config.pushnotifApiKey
+      }
+    })
