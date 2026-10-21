@@ -72,7 +72,7 @@ You can also connect directly via Streamable HTTP at `https://pushnotif.biz.id/m
 7. **`send_push_notification`** — Broadcast instant Web Push (VAPID), Android (FCM), and iOS (APNs) notifications.
 8. **`schedule_push_notification`** — Schedule one-time or recurring (`daily` / `weekly`) push campaigns.
 9. **`configure_inapp_banner`** — Configure In-App Popup Modals, Top Sticky Bars, Bottom Slide Cards, or Live Activity Toasts.
-10. **`configure_rss_autopush`** — Configure automated RSS / Sitemap / Atom feed monitoring.
+10. **`configure_rss_autopush`, `configure_payment_webhook` (Midtrans, Xendit, Mayar, WooCommerce & GitHub)** — Configure automated RSS / Sitemap / Atom feed monitoring.
 11. **`configure_mobile_credentials`** — Upload Firebase FCM Service Account JSON or Apple APNs `.p8` credentials.
 12. **`list_subscribers`** — View active subscriber device distribution and segments.
 13. **`get_campaign_analytics`** — Inspect campaign delivery, click-through rate (CTR), and conversion metrics.

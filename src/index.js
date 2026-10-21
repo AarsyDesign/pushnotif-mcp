@@ -429,6 +429,49 @@ const TOOLS = [
     }
   },
   {
+    "name": "configure_payment_webhook",
+    "description": "Generate the ready-to-paste Automated Payment & Order Webhook URL (POST /api/v1/apps/{app_id}/incoming-event) for Midtrans, Xendit, Mayar, Lynk.id, Duitku, Tripay, WooCommerce, and GitHub, or trigger a live test payment/order event when simulate_test=true. Use this tool when connecting a payment gateway or e-commerce store to automatically show a Live Activity Toast and/or broadcast a Web Push notification upon payment settlement; do not use it for RSS blog feeds (use configure_rss_autopush instead) or manual push campaigns (use send_push_notification instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY; generating the webhook URL costs 0 credits, while live or simulated push broadcasts deduct 1 credit per delivered device (toast_only mode costs 0 credits on display). Returns JSON { ok, app_id, mode, webhook_url, supported_platforms, setup_guides, simulation_result }.",
+    "annotations": {
+      "title": "Configure Payment Gateway Webhook & Simulate Order Event",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "Target application ID in format app_xxxx (obtain from list_apps)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Action when payment/order event arrives: 'both' (default: show Live Activity Toast on website + send Web Push), 'toast_only' (show Live Activity Toast only, 0 credits), or 'push_only' (send Web Push notification only)"
+        },
+        "simulate_test": {
+          "type": "boolean",
+          "description": "Set true to immediately fire a test payment/order webhook event to verify Live Activity Toast and Web Push delivery"
+        },
+        "platform": {
+          "type": "string",
+          "description": "Platform format to simulate when simulate_test=true: 'midtrans' (default), 'xendit', 'woocommerce', or 'github'"
+        },
+        "buyer_name": {
+          "type": "string",
+          "description": "Optional custom buyer name for test simulation (default: 'Budi (Jakarta)')"
+        },
+        "item_name": {
+          "type": "string",
+          "description": "Optional custom product/order name for test simulation (default: 'Paket Premium Rp 149.000')"
+        }
+      },
+      "required": [
+        "app_id"
+      ]
+    }
+  },
+  {
     "name": "list_subscribers",
     "description": "Retrieve active subscriber device records, assigned segment tags, and platform breakdown counts (Web VAPID, Android FCM, iOS APNs) for the workspace or a specific app_id. Use this tool to inspect audience size, platform distribution, or obtain a subscriber_id before calling update_subscriber_tags; do not use it to view campaign click metrics (use get_campaign_analytics instead) or modify subscriber tags (use update_subscriber_tags instead). Read-only operation requiring PUSHNOTIF_API_KEY with 0 credit cost; filter by app_id and optional tag to narrow results. Returns JSON { total_active, platform_breakdown: { web, android_fcm, ios_apns }, subscribers: [{ id, app_id, platform, tags, created_at }] }.",
     "annotations": {
@@ -570,7 +613,7 @@ const TOOLS = [
 const server = new Server(
   {
     name: "pushnotif-mcp-server",
-    version: "2.1.3",
+    version: "2.1.4",
   },
   {
     capabilities: {
@@ -589,7 +632,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   const headers = {
     "Content-Type": "application/json",
-    "User-Agent": "PushNotif-MCP-Server/2.1.3 (+https://github.com/AarsyDesign/pushnotif-mcp)",
+    "User-Agent": "PushNotif-MCP-Server/2.1.4 (+https://github.com/AarsyDesign/pushnotif-mcp)",
   };
   if (apiKey) {
     headers["Authorization"] = apiKey.startsWith("Bearer ") ? apiKey : `Bearer ${apiKey}`;
