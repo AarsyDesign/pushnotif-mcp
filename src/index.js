@@ -150,9 +150,9 @@ const TOOLS = [
   },
   {
     "name": "update_app_branding",
-    "description": "Update an existing application's notification icon URL, automated welcome push message, and optional native mobile push credentials (Android FCM HTTP v1 service account JSON and iOS APNs .p8 key). Use this tool to configure app-level branding, onboarding welcome alerts, or native mobile credentials; do not use it to create a new app (use create_app instead) or configure on-site HTML popups (use configure_inapp_banner instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY and idempotently updates only the fields provided at 0 configuration cost (when welcome_enabled=true, each new subscriber welcome push deducts 1 credit; APNs requires apns_key_id, apns_team_id, apns_bundle_id, and apns_p8_key together). Returns JSON { ok, app_id, icon_url, welcome_enabled, android_fcm_configured, ios_apns_configured }.",
+    "description": "Update an existing application's notification icon URL, automated welcome push message (including drip delay welcome_delay_sec and promo target URL welcome_url), zero-downtime custom VAPID keys (vapid_public_key & vapid_private_key for migrating from OneSignal/LaraPush), and optional native mobile push credentials (Android FCM HTTP v1 service account JSON and iOS APNs .p8 key). Use this tool to configure app-level branding, onboarding welcome alerts, custom VAPID key migration, or native mobile credentials; do not use it to create a new app (use create_app instead) or configure on-site HTML popups (use configure_inapp_banner instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY and idempotently updates only the fields provided at 0 configuration cost (when welcome_enabled=true, each new subscriber welcome push deducts 1 credit; APNs requires apns_key_id, apns_team_id, apns_bundle_id, and apns_p8_key together). Returns JSON { ok, app_id, icon_url, welcome_enabled, welcome_url, welcome_delay_sec, custom_vapid_updated, android_fcm_configured, ios_apns_configured }.",
     "annotations": {
-      "title": "Update App Branding, Welcome Push & Mobile Credentials",
+      "title": "Update App Branding, Welcome Drip, Custom VAPID & Mobile Credentials",
       "readOnlyHint": false,
       "destructiveHint": false,
       "idempotentHint": true,
@@ -180,6 +180,22 @@ const TOOLS = [
         "welcome_body": {
           "type": "string",
           "description": "Body text of the automated welcome push notification (max 180 characters; used when welcome_enabled=true)"
+        },
+        "welcome_url": {
+          "type": "string",
+          "description": "Optional target promo/onboarding HTTPS URL opened when the subscriber clicks the welcome push notification (defaults to site_url)"
+        },
+        "welcome_delay_sec": {
+          "type": "integer",
+          "description": "Optional drip delay in seconds (0 to 300, default: 0) before firing the welcome push notification after opt-in"
+        },
+        "vapid_public_key": {
+          "type": "string",
+          "description": "Optional URL-safe Base64 VAPID Public Key imported from OneSignal, LaraPush, or Webpushr for zero-downtime migration"
+        },
+        "vapid_private_key": {
+          "type": "string",
+          "description": "Optional URL-safe Base64 or PEM VAPID Private Key paired with vapid_public_key"
         },
         "fcm_service_account_json": {
           "type": "string",
@@ -266,7 +282,11 @@ const TOOLS = [
         },
         "segment": {
           "type": "string",
-          "description": "Target audience filter: 'all' (default) or a specific subscriber tag assigned via update_subscriber_tags"
+          "description": "Target audience filter: 'all' (default) or a specific subscriber/merchant tag assigned via data-tags, PushNotif.addTag(), or update_subscriber_tags"
+        },
+        "icon_url": {
+          "type": "string",
+          "description": "Optional HTTPS URL of a custom notification icon/logo (e.g., per-merchant logo override on a shared App ID)"
         }
       },
       "required": [
@@ -326,7 +346,7 @@ const TOOLS = [
   },
   {
     "name": "configure_inapp_banner",
-    "description": "Configure and publish an on-site In-App Popup or Banner (center modal, top sticky bar, or bottom slide-in toast) rendered inside the website by the PushNotif SDK without requiring browser push permission. Use this tool for visual in-page promos and announcements; do not use it for OS lock-screen notifications (use send_push_notification instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY; saving configuration is idempotent and costs 0 credits, while each live visitor display deducts 1 credit (inapp_trigger controls when the banner fires—such as 'scroll_50' for 50% page scroll or 'event:add_to_cart' for custom DOM events—combined with inapp_freq to cap repeat impressions per visitor). Returns JSON { ok, app_id, inapp_enabled, inapp_style, inapp_trigger, inapp_freq }.",
+    "description": "Configure and publish an on-site In-App Popup or Banner (center modal, top sticky bar, or bottom slide-in toast) rendered inside the website by the PushNotif SDK without requiring browser push permission. Use this tool for visual in-page promos and announcements; do not use it for OS lock-screen notifications (use send_push_notification instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY; saving configuration is idempotent and costs 0 credits, while each live visitor display deducts 1 credit (inapp_trigger controls when the banner fires\u2014such as 'scroll_50' for 50% page scroll or 'event:add_to_cart' for custom DOM events\u2014combined with inapp_freq to cap repeat impressions per visitor). Returns JSON { ok, app_id, inapp_enabled, inapp_style, inapp_trigger, inapp_freq }.",
     "annotations": {
       "title": "Configure In-App Popup & Sticky Promo Banner",
       "readOnlyHint": false,
@@ -375,7 +395,31 @@ const TOOLS = [
         },
         "inapp_freq": {
           "type": "string",
-          "description": "Per-visitor frequency cap: 'once_per_session' (default), 'once_per_day', 'cooldown_3h', 'cooldown_12h', 'once_per_week', or 'always'"
+          "description": "Per-visitor frequency cap: 'once_forever' (one-time announcement per visitor, never shown again), 'once_per_session' (default), 'once_per_day', 'cooldown_3h', 'cooldown_12h', 'once_per_week', or 'always'"
+        },
+        "segment_tag": {
+          "type": "string",
+          "description": "Optional target segment/merchant tag (e.g., 'seblak-nearby') to display a dedicated In-App Banner on pages matching that tag under a single shared App ID (default: 'all' for global fallback)"
+        },
+        "inapp_template_id": {
+          "type": "string",
+          "description": "Optional template preset: 'default', 'ai_custom' (custom HTML card), 'voucher_copy', 'flash_timer', 'feature_grid', or 'event_invite'"
+        },
+        "inapp_custom_html": {
+          "type": "string",
+          "description": "Optional raw HTML card markup when inapp_template_id is ai_custom (renders up to 96vw x 94vh)"
+        },
+        "inapp_image_url": {
+          "type": "string",
+          "description": "Optional HTTPS image/poster URL (supports transparent PNG/WEBP)"
+        },
+        "inapp_image_size": {
+          "type": "string",
+          "description": "Optional poster width preset when using image_only: 'compact', 'standard' (default), 'large', 'xl', or 'full'"
+        },
+        "inapp_image_transparent": {
+          "type": "boolean",
+          "description": "Set true when using a transparent PNG/WEBP poster in image_only style so no card box is rendered"
         }
       },
       "required": [
@@ -430,9 +474,9 @@ const TOOLS = [
   },
   {
     "name": "configure_payment_webhook",
-    "description": "Generate the ready-to-paste Automated Payment & Order Webhook URL (POST /api/v1/apps/{app_id}/incoming-event) for Midtrans, Xendit, Mayar, Lynk.id, Duitku, Tripay, WooCommerce, and GitHub, or trigger a live test payment/order event when simulate_test=true. Use this tool when connecting a payment gateway or e-commerce store to automatically show a Live Activity Toast and/or broadcast a Web Push notification upon payment settlement; do not use it for RSS blog feeds (use configure_rss_autopush instead) or manual push campaigns (use send_push_notification instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY; generating the webhook URL costs 0 credits, while live or simulated push broadcasts deduct 1 credit per delivered device (toast_only mode costs 0 credits on display). Returns JSON { ok, app_id, mode, webhook_url, supported_platforms, setup_guides, simulation_result }.",
+    "description": "Generate the ready-to-paste Universal Incoming Webhook URL (POST /api/v1/apps/{app_id}/incoming-event) for 9 auto-detected formats (Midtrans, Xendit, Mayar, Lynk.id, Duitku, Tripay, Supabase Database/Auth, Saweria/Trakteer, Shopify, WooCommerce, GitHub, and Custom JSON), or trigger a live test event when simulate_test=true. Use this tool when connecting a payment gateway, Supabase backend, creator tipping page, or e-commerce store to automatically show a Live Activity Toast, broadcast a Web Push, and/or send a transactional receipt email upon settlement; do not use it for RSS blog feeds (use configure_rss_autopush instead) or manual push campaigns (use send_push_notification instead). Prerequisite: call list_apps first to obtain app_id. Requires PUSHNOTIF_API_KEY; generating the webhook URL costs 0 credits, while live or simulated push broadcasts deduct 1 credit per delivered device (toast_only mode costs 0 credits on display). Returns JSON { ok, app_id, mode, webhook_url, supported_platforms, setup_guides, simulation_result }.",
     "annotations": {
-      "title": "Configure Payment Gateway Webhook & Simulate Order Event",
+      "title": "Configure Universal Incoming Webhook & Simulate Event",
       "readOnlyHint": false,
       "destructiveHint": false,
       "idempotentHint": true,
@@ -447,23 +491,23 @@ const TOOLS = [
         },
         "mode": {
           "type": "string",
-          "description": "Action when payment/order event arrives: 'both' (default: show Live Activity Toast on website + send Web Push), 'toast_only' (show Live Activity Toast only, 0 credits), or 'push_only' (send Web Push notification only)"
+          "description": "Action when incoming webhook event arrives: 'both' (default: show Live Activity Toast on website + send Web Push), 'toast_only' (show Live Activity Toast only, 0 credits), or 'push_only' (send Web Push notification only)"
         },
         "simulate_test": {
           "type": "boolean",
-          "description": "Set true to immediately fire a test payment/order webhook event to verify Live Activity Toast and Web Push delivery"
+          "description": "Set true to immediately fire a test incoming webhook event to verify Live Activity Toast and Web Push delivery"
         },
         "platform": {
           "type": "string",
-          "description": "Platform format to simulate when simulate_test=true: 'midtrans' (default), 'xendit', 'woocommerce', or 'github'"
+          "description": "Platform format to simulate when simulate_test=true: 'midtrans' (default), 'supabase', 'saweria', 'shopify', 'xendit', 'woocommerce', or 'github'"
         },
         "buyer_name": {
           "type": "string",
-          "description": "Optional custom buyer name for test simulation (default: 'Budi (Jakarta)')"
+          "description": "Optional custom actor/buyer name for test simulation (default: 'Budi (Jakarta)')"
         },
         "item_name": {
           "type": "string",
-          "description": "Optional custom product/order name for test simulation (default: 'Paket Premium Rp 149.000')"
+          "description": "Optional custom product/order/table name for test simulation (default: 'Paket Premium Rp 149.000')"
         }
       },
       "required": [
@@ -473,9 +517,9 @@ const TOOLS = [
   },
   {
     "name": "list_subscribers",
-    "description": "Retrieve active subscriber device records, assigned segment tags, and platform breakdown counts (Web VAPID, Android FCM, iOS APNs) for the workspace or a specific app_id. Use this tool to inspect audience size, platform distribution, or obtain a subscriber_id before calling update_subscriber_tags; do not use it to view campaign click metrics (use get_campaign_analytics instead) or modify subscriber tags (use update_subscriber_tags instead). Read-only operation requiring PUSHNOTIF_API_KEY with 0 credit cost; filter by app_id and optional tag to narrow results. Returns JSON { total_active, platform_breakdown: { web, android_fcm, ios_apns }, subscribers: [{ id, app_id, platform, tags, created_at }] }.",
+    "description": "Retrieve active subscriber device records, assigned segment tags, platform breakdown counts (Web VAPID, Android FCM, iOS APNs), or full CSV/JSON backup export for zero-downtime migration. Use this tool to inspect audience size, platform distribution, export subscriber tokens (export_format=\"csv\" or \"json\"), or obtain a subscriber_id before calling update_subscriber_tags; do not use it to view campaign click metrics (use get_campaign_analytics instead) or modify/import subscribers (use update_subscriber_tags instead). Read-only operation requiring PUSHNOTIF_API_KEY with 0 credit cost; filter by app_id and optional tag to narrow results. Returns JSON { total_active, platform_breakdown: { web, android_fcm, ios_apns }, subscribers: [{ id, app_id, platform, tags, created_at }], export_data }.",
     "annotations": {
-      "title": "List Active Subscribers & Platform Breakdown",
+      "title": "List or Export Active Subscribers & Platform Breakdown",
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true,
@@ -495,15 +539,19 @@ const TOOLS = [
         "limit": {
           "type": "integer",
           "description": "Maximum number of subscriber records to return (1 to 100, default: 15)"
+        },
+        "export_format": {
+          "type": "string",
+          "description": "Optional backup export format: 'csv' or 'json' to include full VAPID endpoint/p256dh/auth migration dump for the specified app_id"
         }
       }
     }
   },
   {
     "name": "update_subscriber_tags",
-    "description": "Assign or remove audience segment tags on a subscriber device (subscriber_id), or permanently unsubscribe and delete the device record (when unsubscribe=true). Use this tool to manage subscriber segmentation for targeted send_push_notification broadcasts or to remove a specific subscriber; do not use it to list subscribers (use list_subscribers instead). Prerequisite: call list_subscribers first to obtain a valid subscriber_id. Requires PUSHNOTIF_API_KEY and costs 0 credits; when unsubscribe=true is passed, the subscriber token is irreversibly deleted and tag parameters are ignored, otherwise add_tags and remove_tags idempotently update the subscriber's tag set. Returns JSON { ok, subscriber_id, action, tags, removed }.",
+    "description": "Assign or remove audience segment tags on a subscriber device (subscriber_id), permanently unsubscribe a device (unsubscribe=true), or bulk-import existing Web Push subscribers via CSV or JSON array (import_app_id + import_csv or import_subscribers) at 0 credit cost. Use this tool to manage subscriber segmentation, remove a device, or migrate subscribers from OneSignal/LaraPush/Webpushr; do not use it to list or export subscribers (use list_subscribers instead). Requires PUSHNOTIF_API_KEY and costs 0 credits. Returns JSON { ok, subscriber_id, action, tags, removed, imported, updated }.",
     "annotations": {
-      "title": "Update Subscriber Segment Tags or Unsubscribe Device",
+      "title": "Update Subscriber Tags, Unsubscribe, or Bulk Import Subscribers",
       "readOnlyHint": false,
       "destructiveHint": false,
       "idempotentHint": true,
@@ -514,7 +562,7 @@ const TOOLS = [
       "properties": {
         "subscriber_id": {
           "type": "string",
-          "description": "Target subscriber device ID in format sub_xxxx (obtain from list_subscribers)"
+          "description": "Target subscriber device ID in format sub_xxxx (required when updating tags or unsubscribing a single device)"
         },
         "add_tags": {
           "type": "array",
@@ -533,11 +581,23 @@ const TOOLS = [
         "unsubscribe": {
           "type": "boolean",
           "description": "Set true to permanently unsubscribe and delete this subscriber device record"
+        },
+        "import_app_id": {
+          "type": "string",
+          "description": "Optional target app_id (app_xxxx) when performing a zero-downtime bulk subscriber import via import_csv or import_subscribers"
+        },
+        "import_csv": {
+          "type": "string",
+          "description": "Optional CSV text containing endpoint,p256dh,auth,tags rows to bulk-import into import_app_id"
+        },
+        "import_subscribers": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Optional JSON array of subscriber objects ({endpoint, p256dh, auth, tags}) to bulk-import into import_app_id"
         }
-      },
-      "required": [
-        "subscriber_id"
-      ]
+      }
     }
   },
   {
@@ -606,6 +666,165 @@ const TOOLS = [
           "description": "Optional specific QRIS order ID in format ord_xxxx (from create_qris_invoice) to check; omit to return the latest orders and ledger history"
         }
       }
+    }
+  },
+  {
+    "name": "configure_social_toast",
+    "description": "Configure the standalone on-site Live Activity Social Proof Toast (corner notification card showing recent subscriber joins, logins, and purchases) and its 3 automated DOM/webhook sensors for an app_id without overwriting the In-App Promo Banner. Use this tool to enable/disable social proof toasts, change visual theme or screen corner, or toggle auto-capture sensors; do not use it for promo popups (use configure_inapp_banner instead). Requires PUSHNOTIF_API_KEY and costs 0 credits. Returns JSON { ok, app_id, toast_enabled, toast_theme, toast_position, toast_action, sensors }.",
+    "annotations": {
+      "title": "Configure Standalone Live Activity Social Proof Toast",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "Target application ID in format app_xxxx (obtain from list_apps)"
+        },
+        "toast_enabled": {
+          "type": "boolean",
+          "description": "Set true to enable Live Activity Toast on the website, or false to turn it off"
+        },
+        "toast_theme": {
+          "type": "string",
+          "description": "Visual theme: 'light_emerald' (default), 'dark_slate', 'royal_blue', or 'ai_custom' (bespoke HTML/CSS)"
+        },
+        "toast_custom_title": {
+          "type": "string",
+          "description": "Optional custom headline override for the Live Toast (leave empty to use automated sensor feed)"
+        },
+        "toast_custom_body": {
+          "type": "string",
+          "description": "Optional custom message body override for the Live Toast"
+        },
+        "toast_custom_html": {
+          "type": "string",
+          "description": "Optional bespoke HTML/CSS markup when toast_theme='ai_custom'"
+        },
+        "toast_position": {
+          "type": "string",
+          "description": "Screen corner: 'bottom_left' (default) or 'bottom_right'"
+        },
+        "toast_action": {
+          "type": "string",
+          "description": "Click behavior: 'subscribe_push' (default), 'custom_url', or 'none'"
+        },
+        "toast_custom_url": {
+          "type": "string",
+          "description": "Optional HTTPS URL opened when toast_action='custom_url'"
+        },
+        "toast_sensor_sub": {
+          "type": "boolean",
+          "description": "Auto-show toast when a new visitor subscribes to push notifications"
+        },
+        "toast_sensor_auth": {
+          "type": "boolean",
+          "description": "Auto-detect signup/login forms on the website"
+        },
+        "toast_sensor_buy": {
+          "type": "boolean",
+          "description": "Auto-detect checkout/payment forms and incoming payment webhooks"
+        }
+      },
+      "required": [
+        "app_id"
+      ]
+    }
+  },
+  {
+    "name": "configure_email_automation",
+    "description": "Configure per-app module switches (ON/OFF) for Transactional Email OTP, Automated Payment Webhook Email Receipts, Order Status Emails, and the Web Push Notification collector, plus sender brand name and Reply-To email address. Use this tool to enable or disable individual channels per website; do not use it to send an immediate email or OTP (use send_transactional_email instead). Requires PUSHNOTIF_API_KEY and costs 0 credits. Returns JSON { ok, app_id, push_enabled, email_otp_enabled, email_invoice_enabled, email_status_enabled, email_brand_name, email_reply_to }.",
+    "annotations": {
+      "title": "Configure Email OTP, Webhook Receipt & Push Module Switches",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "Target application ID in format app_xxxx (obtain from list_apps)"
+        },
+        "push_enabled": {
+          "type": "boolean",
+          "description": "Set true to enable Web Push Notification collection on the website, or false to disable"
+        },
+        "email_otp_enabled": {
+          "type": "boolean",
+          "description": "Set true to enable 6-digit Email OTP generation and verification for this app"
+        },
+        "email_invoice_enabled": {
+          "type": "boolean",
+          "description": "Set true to automatically send paid invoice receipts via email when a payment webhook arrives"
+        },
+        "email_status_enabled": {
+          "type": "boolean",
+          "description": "Set true to enable order status and shipping tracking emails"
+        },
+        "email_brand_name": {
+          "type": "string",
+          "description": "Sender brand name shown in the recipient inbox (e.g., 'Kopi Nusantara')"
+        },
+        "email_reply_to": {
+          "type": "string",
+          "description": "Business Reply-To email address where customer replies are routed"
+        }
+      },
+      "required": [
+        "app_id"
+      ]
+    }
+  },
+  {
+    "name": "send_transactional_email",
+    "description": "Send a 1-to-1 locked transactional email (6-digit OTP challenge, paid invoice receipt, or order shipping status update) or verify a 6-digit OTP code entered by a user. Use this tool for transactional 1-to-1 emails and managed OTP verification; bulk marketing or promotional blasts are strictly prohibited. Requires PUSHNOTIF_API_KEY; sending an email or OTP deducts 25 credits (Rp 5), while verifying an OTP code (action=verify_otp) costs 0 credits. Returns JSON delivery receipt or OTP verification token.",
+    "annotations": {
+      "title": "Send Transactional Email (OTP, Invoice, Order Status) or Verify OTP",
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": "Target application ID in format app_xxxx (obtain from list_apps)"
+        },
+        "action": {
+          "type": "string",
+          "description": "Operation mode: 'send_otp' (generate & email 6-digit OTP), 'verify_otp' (verify 6-digit code), 'send_invoice' (send paid receipt email), or 'send_order_status' (send order/shipping update)"
+        },
+        "to_email": {
+          "type": "string",
+          "description": "Single recipient email address (1-to-1 transactional only)"
+        },
+        "otp_code": {
+          "type": "string",
+          "description": "6-digit numeric OTP code (required when action='verify_otp')"
+        },
+        "reference_id": {
+          "type": "string",
+          "description": "Invoice number or Order ID (e.g., 'INV-2026-001' or 'ORD-99281' for send_invoice / send_order_status)"
+        },
+        "detail_text": {
+          "type": "string",
+          "description": "Transaction amount/items or shipping courier tracking info (e.g., 'Rp 85.000 \u2014 Kopi Susu' or 'DIKIRIM \u2014 Resi JNE: JP882910')"
+        }
+      },
+      "required": [
+        "app_id",
+        "action",
+        "to_email"
+      ]
     }
   }
 ];
