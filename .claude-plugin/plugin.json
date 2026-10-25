@@ -1,0 +1,28 @@
+{
+  "name": "pushnotif",
+  "version": "2.5.0",
+  "description": "Official PushNotif MCP plugin — 24 native tools for Web Push (VAPID), Android (FCM), iOS (APNs), In-App Popup Banners, Social Proof Toasts, and Transactional Email OTP.",
+  "author": {
+    "name": "PushNotif",
+    "url": "https://pushnotif.biz.id"
+  },
+  "homepage": "https://pushnotif.biz.id/docs",
+  "repository": "https://github.com/AarsyDesign/pushnotif-mcp",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "push-notifications",
+    "web-push",
+    "fcm",
+    "apns",
+    "email-otp",
+    "in-app-banner",
+    "social-proof"
+  ],
+  "mcpServers": {
+    "pushnotif": {
+      "type": "http",
+      "url": "https://pushnotif.biz.id/mcp"
+    }
+  }
+}

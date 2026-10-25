@@ -1,0 +1,12 @@
+{
+  "name": "pushnotif",
+  "displayName": "PushNotif Official MCP Server",
+  "version": "2.5.0",
+  "description": "Send Web Push (VAPID), Android (FCM), iOS (APNs), In-App Popup Banners, Social Proof Toasts, and Transactional Email OTP with 24 native MCP tools.",
+  "publisher": "PushNotif",
+  "homepage": "https://pushnotif.biz.id/docs",
+  "repository": "https://github.com/AarsyDesign/pushnotif-mcp",
+  "license": "MIT",
+  "icon": "logo.png",
+  "mcp": "mcp.json"
+}

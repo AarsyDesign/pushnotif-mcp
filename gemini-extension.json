@@ -1,0 +1,10 @@
+{
+  "name": "pushnotif",
+  "version": "2.5.0",
+  "description": "Official PushNotif MCP extension for Gemini CLI — 24 tools for Web Push (VAPID), Android (FCM), iOS (APNs), In-App Popup Banners, Social Proof Toasts, and Transactional Email OTP.",
+  "mcpServers": {
+    "pushnotif": {
+      "httpUrl": "https://pushnotif.biz.id/mcp"
+    }
+  }
+}
