@@ -1,5 +1,7 @@
 # 🔔 PushNotif MCP Server (`pushnotif-mcp-server`)
 
+[![Listed on AllMCPs](https://allmcps.com/api/badge/pushnotif-official-mcp-server?style=shield)](https://allmcps.com/mcp/pushnotif-official-mcp-server)
+
 [![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-2563eb?style=flat-square)](https://modelcontextprotocol.io)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-10b981?style=flat-square)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
