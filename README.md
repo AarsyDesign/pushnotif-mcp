@@ -1,7 +1,7 @@
 # 🔔 PushNotif MCP Server (`pushnotif-mcp-server`)
 
 [![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/aarsydesign/pushnotif-mcp)
-[![Listed on AllMCPs](https://allmcps.com/api/badge/pushnotif-official-mcp-server?style=shield)](https://allmcps.com/mcp/pushnotif-official-mcp-server)
+[![AllMCPs Verified](https://allmcps.com/api/badge/pushnotif-official-mcp-server?metric=upvotes)](https://allmcps.com/mcp/pushnotif-official-mcp-server?verify=5d7c8dc2-8647-4fdb-ad21-2415caabb320)
 [![AgentShield Security](https://merx.help/badge/A+.svg)](https://merx.help/shield)
 
 [![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-2563eb?style=flat-square)](https://modelcontextprotocol.io)
